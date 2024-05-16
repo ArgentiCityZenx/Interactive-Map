@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapamundi Interactivo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+    <script>
+        // Crear el mapa y establecer la vista inicial
+var map = L.map('map').setView([20, 0], 2);
+
+// Agregar una capa de mapa
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+// Función para obtener la URL de la bandera
+function getFlagUrl(countryName) {
+    return `https://countryflagsapi.com/png/${countryName.replace(' ', '%20')}`;
+}
+
+// Cargar geojson de los países
+var geojsonLayer = new L.GeoJSON.AJAX("https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson", {
+    onEachFeature: function (feature, layer) {
+        layer.on('click', function () {
+            var countryName = feature.properties.ADMIN;
+            var flagUrl = getFlagUrl(countryName);
+
+            var popupContent = `
+                <div style="text-align: center;">
+                    <h2>${countryName}</h2>
+                    <img src="${flagUrl}" alt="Bandera de ${countryName}" style="width: 100px; height: auto;">
+                </div>
+            `;
+            layer.bindPopup(popupContent).openPopup();
+        });
+    }
+});
+geojsonLayer.addTo(map);
+
+    </script>
+</body>
+</html>
